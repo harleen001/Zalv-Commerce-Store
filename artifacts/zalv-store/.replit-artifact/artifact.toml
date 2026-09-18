@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Zalv Store"
+description = "A full-stack storefront for Zalv, an India-based leather and fragrance label. Customers can browse products, create accounts, place cash-on-delivery orders, and track them while admins manage inventory and fulfillment status."
+version = "1.0.0"
+id = "artifacts/zalv-store"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24469
+
+[services.development]
+run = "pnpm --filter @workspace/zalv-store run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/zalv-store", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/zalv-store/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24469"
+BASE_PATH = "/"
