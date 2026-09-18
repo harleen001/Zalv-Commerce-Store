@@ -1,12 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, Route, Switch, useLocation, useParams, Router as WouterRouter } from 'wouter';
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, CircleUserRound, Menu, Minus, Plus, ShoppingBag, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, CircleUserRound, Menu, Minus, Plus, Search, ShoppingBag, X } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import { ErrorBoundary } from '@/components/error-boundary';
 import logo from '@assets/zalv-logo.png';
+import bootsImage from '@/assets/zalv-boots.jpg';
+import jacketImage from '@/assets/zalv-jacket.jpg';
 import popupImage from '@/assets/zalv-perfume.jpg';
+import perfumeImage from '@/assets/zalv-perfume.jpg';
 import heroImage from '@/assets/zalv-hero.jpg';
 import craftImage from '@/assets/zalv-craft.jpg';
 import {
@@ -19,7 +22,7 @@ type User = { id: string; email: string; name: string; isAdmin?: boolean };
 
 function money(value: number) { return `₹${value.toLocaleString('en-IN')}`; }
 
-function Shell({ children, cart, setCart, user, onSignOut }: { children: ReactNode; cart: CartItem[]; setCart: React.Dispatch<React.SetStateAction<CartItem[]>>; user: User | null; onSignOut: () => void }) {
+function Shell({ children, cart, setCart, user, onSignOut, showChrome = true }: { children: ReactNode; cart: CartItem[]; setCart: React.Dispatch<React.SetStateAction<CartItem[]>>; user: User | null; onSignOut: () => void; showChrome?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [notice, setNotice] = useState('');
@@ -30,9 +33,14 @@ function Shell({ children, cart, setCart, user, onSignOut }: { children: ReactNo
   const changeQty = (id: string, delta: number) => setCart((current) => current.map((item) => item.product.id === id ? { ...item, quantity: item.quantity + delta } : item).filter((item) => item.quantity > 0));
   const add = (product: Product) => { setCart((current) => { const found = current.find((item) => item.product.id === product.id); return found ? current.map((item) => item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...current, { product, quantity: 1 }]; }); flash(`${product.name} added to bag`); };
   useEffect(() => { localStorage.setItem('zalv-cart', JSON.stringify(cart)); }, [cart]);
+  useEffect(() => {
+    const openCart = () => setCartOpen(true);
+    window.addEventListener('zalv-open-cart', openCart);
+    return () => window.removeEventListener('zalv-open-cart', openCart);
+  }, []);
   return <div className="zalv-shell">
-    <div className="topline">Complimentary delivery across India · Cash on delivery available</div>
-    <header className="site-header">
+    {showChrome && <div className="topline">Complimentary delivery across India · Cash on delivery available</div>}
+    {showChrome && <header className="site-header">
       <div className="header-inner">
         <button className="menu-button" aria-label="Open navigation" data-testid="button-menu" onClick={() => setMenuOpen(!menuOpen)}><Menu size={21} strokeWidth={1.5} /></button>
         <Link href="/" data-testid="link-logo"><img className="brand-logo" src={logo} alt="Zalv" /></Link>
@@ -48,16 +56,16 @@ function Shell({ children, cart, setCart, user, onSignOut }: { children: ReactNo
           <button className="header-action" aria-label="Open shopping bag" data-testid="button-cart" onClick={() => setCartOpen(true)}><ShoppingBag size={18} strokeWidth={1.4} /><span>Bag</span><b className="cart-count" data-testid="text-cart-count">{count}</b></button>
         </div>
       </div>
-    </header>
+    </header>}
     {children}
-    <footer className="footer" id="journal">
+    {showChrome && <footer className="footer" id="journal">
       <div className="footer-inner">
         <div><img className="footer-logo" src={logo} alt="Zalv" /><p style={{ maxWidth:260, color:'#b8aea5', lineHeight:1.7, fontSize:13, marginTop:20 }}>Objects for the way you move through the world. Made slowly in Jalandhar.</p></div>
         <div><h4>Explore</h4><Link href="/shop">Shop all</Link><Link href="/shop/perfume">Perfume</Link><Link href="/shop/shoes">Leather shoes</Link><Link href="/shop/jackets">Leather jackets</Link></div>
         <div><h4>Notes</h4><a href="#journal">Our material</a><a href="#journal">Care guide</a><a href="#journal">Contact studio</a><a href="#journal">Shipping & returns</a></div>
       </div>
       <div className="footer-bottom"><span>© 2024 Zalv Objects</span><span>Made in Punjab, India</span></div>
-    </footer>
+    </footer>}
     {cartOpen && <div className="drawer-overlay" role="dialog" aria-modal="true" aria-label="Shopping bag">
       <div className="cart-drawer">
         <div className="drawer-head"><h2>Your bag <small style={{font:'11px var(--app-font-mono)', color:'#8c4a2f'}}>({count})</small></h2><button className="icon-button" aria-label="Close bag" data-testid="button-close-cart" onClick={() => setCartOpen(false)}><X size={20} /></button></div>
@@ -84,15 +92,58 @@ function WelcomeModal({ onClose }: { onClose: () => void }) {
   </div>;
 }
 
-function Home({ products, onAdd }: { products: Product[]; onAdd: (product: Product) => void }) {
-  const featured = products.filter((product) => product.is_featured).slice(0, 4);
-  return <main>
-    <section className="hero"><div className="hero-copy"><span className="eyebrow">Made in Jalandhar · 31°19'N</span><h1 className="display">Wear what<br/><em>stays.</em></h1><p>Leather with a point of view. Fragrance with a memory. Zalv makes considered objects for people who would rather be remembered than noticed.</p><div style={{marginTop:30}}><Link className="button-primary" href="/shop" data-testid="button-hero-shop">Shop the collection <ArrowRight size={14}/></Link></div></div><div className="hero-media"><img src={heroImage} alt="Model wearing a deep oxblood leather jacket" /><div className="hero-stamp">Objects<br/>with a<br/>past +<br/>future</div></div></section>
-    <div className="marquee"><div className="marquee-track"><span>Leather from Jalandhar</span><span>Small-batch fragrance</span><span>Made to be worn in</span><span>Leather from Jalandhar</span><span>Small-batch fragrance</span><span>Made to be worn in</span></div></div>
-    <section className="page-wrap section"><div className="section-head"><div><span className="eyebrow">The edit / 01</span><h2 className="display">The ones<br/><em>we keep.</em></h2></div><Link className="button-quiet" href="/shop" data-testid="link-featured-all">View all objects <ArrowRight size={13}/></Link></div><div className="product-grid">{featured.map((product) => <ProductCard key={product.id} product={product} onAdd={onAdd}/>)}</div></section>
-    <section className="story-band"><img src={craftImage} alt="Leather artisan cutting a hide in a Jalandhar workshop" /><div className="story-copy"><span className="eyebrow" style={{color:'#f1c0a3'}}>The material / 02</span><h2 className="display">Picked there.<br/>Made here.</h2><p>Jalandhar has been working leather for generations. We stay close to that knowledge: choosing hides by hand, working with local makers, and leaving enough room for the material to speak.</p><a className="button-quiet" style={{color:'#f3eadf',alignSelf:'flex-start',marginTop:22}} href="#journal" data-testid="link-material-story">Read our material story <ArrowRight size={13}/></a></div></section>
-    <section className="page-wrap section" style={{paddingBottom:0}}><div className="section-head"><div><span className="eyebrow">A quiet signature / 03</span><h2 className="display">Scent is<br/><em>texture too.</em></h2></div></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}><div style={{background:'#c9b09b',minHeight:330,overflow:'hidden'}}><img src={popupImage} alt="Zalv fragrance bottle and charred wood" style={{width:'100%',height:'100%',objectFit:'cover'}}/></div><div style={{display:'flex',flexDirection:'column',justifyContent:'center',padding:'35px 5vw'}}><span className="eyebrow">Four compositions</span><p className="display" style={{fontSize:'clamp(28px,4vw,54px)',lineHeight:1.03,margin:'16px 0 22px'}}>A trace of smoke.<br/>A little rain.<br/>Something warm.</p><Link className="button-quiet" href="/shop/perfume" data-testid="link-perfume-edit">Discover perfume <ArrowRight size={13}/></Link></div></div></section>
+type HomeCategory = 'Jackets' | 'Boots' | 'Perfume';
+type HomeProduct = { source: Product; name: string; category: HomeCategory; image: string; note: string; tag?: string };
+
+function Home({ products, onAdd, cartCount }: { products: Product[]; onAdd: (product: Product) => void; cartCount: number }) {
+  const [filter, setFilter] = useState<'All' | HomeCategory>('All');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selected, setSelected] = useState<HomeProduct | null>(null);
+  const [signedUp, setSignedUp] = useState(false);
+  const grouped = (['jackets', 'shoes', 'perfume'] as const).flatMap((category) => products.filter((product) => product.category === category).slice(0, 2));
+  const homeProducts: HomeProduct[] = grouped.map((product) => ({
+    source: product,
+    name: product.name,
+    category: product.category === 'shoes' ? 'Boots' : product.category === 'jackets' ? 'Jackets' : 'Perfume',
+    image: product.image_url,
+    note: product.description,
+    tag: product.is_featured ? 'STUDIO PICK' : undefined,
+  }));
+  const shownProducts = filter === 'All' ? homeProducts : homeProducts.filter((product) => product.category === filter);
+  const categoryImages: Record<HomeCategory, string> = { Jackets: jacketImage, Boots: bootsImage, Perfume: perfumeImage };
+  const selectCategory = (category: HomeCategory) => {
+    setFilter(category);
+    document.querySelector('#shop')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return <main className="original-home">
+    <div className="announce">MEMBER DAYS · COMPLIMENTARY SHIPPING OVER $150</div>
+    <header className="site-header">
+      <div className="nav-wrap">
+        <button className="icon-button mobile-only" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
+        <a className="wordmark" href="#top" aria-label="ZALV home">ZALV<span>®</span></a>
+        <nav className="main-nav" aria-label="Main navigation"><a href="#new">New</a><a href="#shop">Jackets</a><a href="#shop">Boots</a><a href="#scent">Perfume</a><a href="#craft">Journal</a></nav>
+        <div className="nav-actions">
+          <button className="icon-button desktop-only" aria-label="Search"><Search /></button>
+          <button className="bag-button" aria-label="Open shopping bag" data-testid="button-original-cart" onClick={() => window.dispatchEvent(new Event('zalv-open-cart'))}><ShoppingBag /><span>Bag</span><b>{String(cartCount).padStart(2, '0')}</b></button>
+        </div>
+      </div>
+    </header>
+    {menuOpen && <div className="mobile-menu"><button className="icon-button menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X /></button><a className="wordmark" href="#top">ZALV</a><nav><a href="#new" onClick={() => setMenuOpen(false)}>New collection</a><a href="#shop" onClick={() => setMenuOpen(false)}>Jackets</a><a href="#shop" onClick={() => setMenuOpen(false)}>Boots</a><a href="#scent" onClick={() => setMenuOpen(false)}>Perfume</a><a href="#craft" onClick={() => setMenuOpen(false)}>Our workshop</a></nav></div>}
+    <section className="hero" id="top"><img className="hero-image" src={heroImage} alt="Model wearing ZALV oxblood leather jacket" /><div className="hero-shade" /><div className="hero-content"><p className="eyebrow light">AUTUMN / WINTER 2026 · JALANDHAR</p><h1>Fearless<br /><em>objects.</em></h1><p className="hero-intro">Leather outerwear, resoleable boots and dry-down perfumes. Made in small batches for people who keep things.</p><a className="text-link light" href="#shop">Shop the drop <ArrowDown /></a></div><p className="hero-index">COLLECTION 01 / 19 PIECES</p></section>
+    <section className="manifesto" id="new"><p className="eyebrow">OUR POSITION</p><p className="manifesto-copy">Not trend. Not nostalgia.<br />Objects with the courage to <em>age.</em></p><div className="manifesto-notes"><span>Full-grain hides</span><span>Goodyear welts</span><span>Concentrated parfum</span><span>Made to be re-worn</span></div></section>
+    <section className="categories" aria-labelledby="category-title"><div className="section-heading"><p className="eyebrow">01 / DISCIPLINES</p><h2 id="category-title">Three ways<br />to leave a mark.</h2><p>One workshop philosophy, expressed in hide, sole, and scent.</p></div><div className="category-grid">{(Object.keys(categoryImages) as HomeCategory[]).map((category, index) => <button className="category-tile" key={category} onClick={() => selectCategory(category)}><img src={categoryImages[category]} alt={`Shop ZALV ${category.toLowerCase()}`} /><span className="category-number">0{index + 1}</span><span className="category-name">{category}</span><ArrowRight /></button>)}</div></section>
+    <section className="shop" id="shop" aria-labelledby="shop-title"><div className="shop-top"><div><p className="eyebrow">02 / CURRENT RANGE</p><h2 id="shop-title">Made now.</h2></div><p>Twelve pieces, restocked in small runs.<br />No permanent collection.</p></div><div className="filter-row" role="group" aria-label="Product filters">{(['All', 'Jackets', 'Boots', 'Perfume'] as const).map((option) => <button key={option} className={filter === option ? 'active' : ''} onClick={() => setFilter(option)}>{option}</button>)}</div><div className="product-grid">{shownProducts.map((product, index) => <article className={`product-card ${index === 0 ? 'featured-product' : ''}`} key={product.source.id}><button className="product-media" onClick={() => setSelected(product)} aria-label={`View ${product.name}`}><img src={product.image} alt={product.name} />{product.tag && <span className="product-tag">{product.tag}</span>}<span className="quick-view">Quick view <ArrowRight /></span></button><div className="product-info"><div><p className="product-category">{product.category}</p><h3>{product.name}</h3></div><p>{money(product.source.price)}</p></div></article>)}</div></section>
+    <section className="craft" id="craft"><div className="craft-image"><img src={craftImage} alt="Leather artisan hand-cutting a hide in the ZALV workshop" /><span>JALANDHAR, PUNJAB<br />31.3260° N, 75.5762° E</span></div><div className="craft-copy"><p className="eyebrow light">03 / THE WORKSHOP</p><h2>Cut around<br />the scars.</h2><p>Every hide tells us where it wants to be cut. We follow its grain, keep its history visible, and waste less than six percent per jacket.</p><a className="text-link light" href="#footer">Meet the makers <ArrowRight /></a></div></section>
+    <section className="scent" id="scent"><img src={perfumeImage} alt="ZALV Burnt Vetiver perfume" /><div className="scent-copy"><p className="eyebrow">04 / THE SCENT LIBRARY</p><h2>What leather<br />remembers.</h2><p>Four concentrated eau de parfums built around smoke, leather, oud, vetiver and tobacco. Close to the body. Hard to forget.</p><button className="solid-button" onClick={() => selectCategory('Perfume')}>Discover the scents <ArrowRight /></button></div></section>
+    <section className="newsletter"><p className="eyebrow light">PRIVATE LIST</p><h2>{signedUp ? "You're on the list." : 'First to know. Last to follow.'}</h2>{!signedUp && <form onSubmit={(event) => { event.preventDefault(); setSignedUp(true); }}><label className="sr-only" htmlFor="home-email">Email address</label><input id="home-email" type="email" placeholder="Email address" required /><button type="submit" aria-label="Join mailing list"><ArrowRight /></button></form>}{signedUp && <Check className="signup-check" aria-hidden="true" />}</section>
+    <footer id="footer"><div className="footer-brand"><a className="wordmark large" href="#top">ZALV</a><p>Objects for use, abuse,<br />repair and return.</p></div><FooterColumn title="SHOP" links={['Jackets', 'Boots', 'Perfume', 'Gift cards']} /><FooterColumn title="ASSISTANCE" links={['Shipping', 'Returns', 'Size guide', 'Contact']} /><FooterColumn title="STUDIO" links={['Purpose', 'Craftsmanship', 'Careers', 'Journal']} /><div className="footer-bottom"><span>© 2026 ZALV</span><span>JALANDHAR · INDIA</span><span>INSTAGRAM ↗</span></div></footer>
+    {selected && <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={selected.name} onClick={() => setSelected(null)}><div className="quick-modal" onClick={(event) => event.stopPropagation()}><button className="icon-button modal-close" aria-label="Close quick view" onClick={() => setSelected(null)}><X /></button><img src={selected.image} alt={selected.name} /><div className="modal-copy"><p className="eyebrow">{selected.category}</p><h2>{selected.name}</h2><p className="modal-price">{money(selected.source.price)}</p><p>{selected.note}</p>{selected.category !== 'Perfume' && <div className="size-row"><span>SELECT SIZE</span>{['XS', 'S', 'M', 'L', 'XL'].map((size) => <button key={size}>{size}</button>)}</div>}<button className="solid-button full" onClick={() => { onAdd(selected.source); setSelected(null); }}>Add to bag <ArrowRight /></button></div></div></div>}
   </main>;
+}
+
+function FooterColumn({ title, links }: { title: string; links: string[] }) {
+  return <div className="footer-column"><h3>{title}</h3>{links.map((link) => <a href="#top" key={link}>{link}</a>)}</div>;
 }
 
 function Shop({ products, onAdd }: { products: Product[]; onAdd: (product: Product) => void }) {
@@ -115,7 +166,7 @@ function Account({ user, setUser, cart, setCart }: { user: User | null; setUser:
   useEffect(() => { if (user) getOrders(user.id).then(setOrders); }, [user]);
   const submitAuth = async (event: React.FormEvent) => { event.preventDefault(); setBusy(true); setMessage(''); try { const next = mode === 'login' ? await signIn(form.email, form.password) : await signUp(form.name, form.email, form.password); setUser(next); localStorage.setItem('zalv-session', JSON.stringify(next)); setMessage(mode === 'login' ? 'Welcome back.' : 'Your Zalv account is ready.'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Something went wrong.'); } finally { setBusy(false); } };
   const submitOrder = async (event: React.FormEvent) => { event.preventDefault(); if (!user) return; setBusy(true); try { const details: CheckoutDetails = { customer_name:form.name, customer_phone:form.phone, customer_email:form.email || user.email, shipping_address:form.address, city:form.city, pincode:form.pincode }; const order = await createOrder(user.id, details, cart); setOrders((current) => [order, ...current]); setCart([]); setMessage(`Order ${order.id} placed. We will call before dispatch.`); setOrderConfirmation(order); setLocation('/account'); } catch (error) { setMessage(error instanceof Error ? error.message : 'We could not place that order. Please try again.'); } finally { setBusy(false); } };
-  if (!user) return <main className="page-wrap"><div className="form-page"><span className="eyebrow">{checkout ? 'Sign in to check out' : mode === 'login' ? 'Welcome back' : 'Join the studio'}</span><h1 className="display">{mode === 'login' ? 'Your objects await.' : 'Make room for better things.'}</h1><form onSubmit={submitAuth}><div className="field">{mode === 'signup' && <><label htmlFor="name">Name</label><input id="name" data-testid="input-name" required value={form.name} onChange={(e) => setForm({...form,name:e.target.value})}/></>}</div><div className="field"><label htmlFor="email">Email</label><input id="email" type="email" data-testid="input-email" required value={form.email} onChange={(e) => setForm({...form,email:e.target.value})}/></div><div className="field"><label htmlFor="password">Password</label><input id="password" type="password" data-testid="input-password" required minLength={6} value={form.password} onChange={(e) => setForm({...form,password:e.target.value})}/></div>{message && <p role="status" data-testid="status-auth-message" style={{color:'#8c4a2f',fontSize:13}}>{message}</p>}<button className="button-primary" style={{width:'100%',marginTop:5}} disabled={busy} data-testid="button-auth-submit">{busy ? 'Please wait' : mode === 'login' ? 'Sign in' : 'Create account'}</button></form><button className="button-quiet" style={{marginTop:25}} data-testid="button-toggle-auth" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>{mode === 'login' ? 'Create a new account' : 'I already have an account'}</button></div></main>;
+  if (!user) return <main className="page-wrap"><div className="form-page"><span className="eyebrow">{checkout ? 'Sign in to check out' : mode === 'login' ? 'Welcome back' : 'Join the studio'}</span><h1 className="display">{mode === 'login' ? 'Your objects await.' : 'Make room for better things.'}</h1><form onSubmit={submitAuth}><div className="field">{mode === 'signup' && <><label htmlFor="name">Name</label><input id="name" autoComplete="name" data-testid="input-name" required value={form.name} onChange={(e) => setForm({...form,name:e.target.value})}/></>}</div><div className="field"><label htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" data-testid="input-email" required value={form.email} onChange={(e) => setForm({...form,email:e.target.value})}/></div><div className="field"><label htmlFor="password">Password</label><input id="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} data-testid="input-password" required minLength={6} value={form.password} onChange={(e) => setForm({...form,password:e.target.value})}/></div>{message && <p role="status" data-testid="status-auth-message" style={{color:'#8c4a2f',fontSize:13}}>{message}</p>}<button className="button-primary" style={{width:'100%',marginTop:5}} disabled={busy} data-testid="button-auth-submit">{busy ? 'Please wait' : mode === 'login' ? 'Sign in' : 'Create account'}</button></form><button className="button-quiet" style={{marginTop:25}} data-testid="button-toggle-auth" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>{mode === 'login' ? 'Create a new account' : 'I already have an account'}</button></div></main>;
   if (checkout) return <><main className="page-wrap"><div className="form-page" style={{maxWidth:760}}><span className="eyebrow">Checkout / cash on delivery</span><h1 className="display">Where should<br/>we send it?</h1><form onSubmit={submitOrder}><div className="account-grid" style={{paddingTop:0,gap:30}}><div><div className="field"><label htmlFor="checkout-name">Full name</label><input id="checkout-name" required data-testid="input-checkout-name" value={form.name || user.name || ''} onChange={(e)=>setForm({...form,name:e.target.value})}/></div><div className="field"><label htmlFor="checkout-email">Email</label><input id="checkout-email" type="email" required data-testid="input-checkout-email" value={form.email || user.email || ''} onChange={(e)=>setForm({...form,email:e.target.value})}/></div><div className="field"><label htmlFor="checkout-phone">Phone</label><input id="checkout-phone" required data-testid="input-checkout-phone" value={form.phone} onChange={(e)=>setForm({...form,phone:e.target.value})}/></div><div className="field"><label htmlFor="checkout-address">Address</label><textarea id="checkout-address" required rows={3} data-testid="input-checkout-address" value={form.address} onChange={(e)=>setForm({...form,address:e.target.value})}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div className="field"><label htmlFor="checkout-city">City</label><input id="checkout-city" required data-testid="input-checkout-city" value={form.city} onChange={(e)=>setForm({...form,city:e.target.value})}/></div><div className="field"><label htmlFor="checkout-pincode">Pincode</label><input id="checkout-pincode" required pattern="[0-9]{6}" data-testid="input-checkout-pincode" value={form.pincode} onChange={(e)=>setForm({...form,pincode:e.target.value})}/></div></div></div><div className="account-card"><h2>In your bag</h2>{cart.map((item)=><div className="order-row" key={item.product.id}><span>{item.product.name} × {item.quantity}</span><strong>{money(item.product.price*item.quantity)}</strong></div>)}<div className="order-row"><strong>Total</strong><strong>{money(cart.reduce((sum,item)=>sum+item.product.price*item.quantity,0))}</strong></div><p style={{fontSize:12,lineHeight:1.6,color:'#6b625b'}}>Payment is collected on delivery. No card details needed.</p></div></div>{message && <p role="status" data-testid="status-order-message" style={{color:'#8c4a2f',fontSize:13}}>{message}</p>}<button className="button-primary" disabled={busy || cart.length === 0} data-testid="button-place-order">{busy ? 'Placing order' : 'Place order · COD'}</button></form></div></main>{orderConfirmation && <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="order-confirmation-title"><div className="modal modal-confirmation"><div className="modal-copy"><button className="icon-button modal-close" aria-label="Close order confirmation" data-testid="button-close-order-confirmation" onClick={() => setOrderConfirmation(null)}><X size={18}/></button><span className="eyebrow">Thank you</span><h2 id="order-confirmation-title" className="display">Your order is placed.</h2><p>Order <strong>{orderConfirmation.id}</strong> is confirmed. We will call on the number you shared before dispatch and collect payment on delivery.</p><button className="button-primary" data-testid="button-confirm-order-close" onClick={() => setOrderConfirmation(null)}>Continue browsing <ArrowRight size={14}/></button></div></div></div>}</>;
   if (!user) return null;
   return <main className="page-wrap"><div className="shop-header"><div><span className="eyebrow">The private view</span><h1 className="display">Hello,<br/>{user.name.split(' ')[0]}.</h1></div><button className="button-quiet" data-testid="button-signout" onClick={async()=>{await signOut();setUser(null);}}>Sign out</button></div><div className="account-grid"><section className="account-card"><h2>Profile</h2><p data-testid="text-profile-email" style={{fontSize:13}}>{user.email}</p><p style={{fontSize:13,color:'#6b625b'}}>Member since today. Your saved details will make future orders quicker.</p><Link className="button-quiet" href="/shop" data-testid="link-account-shop">Continue shopping <ArrowRight size={13}/></Link></section><section className="account-card"><h2>Order history</h2>{orders.length===0 ? <p data-testid="text-orders-empty" style={{fontSize:13,color:'#6b625b'}}>Your first Zalv object is still out there.</p> : orders.map((order)=><div className="order-row" key={order.id} data-testid={`order-${order.id}`}><div><strong>{order.id}</strong><div style={{fontSize:11,color:'#6b625b',marginTop:6}}>{new Date(order.created_at).toLocaleDateString('en-IN')}</div></div><div style={{textAlign:'right'}}><strong>{money(order.total)}</strong><div className="status">{order.status}</div></div></div>)}</section></div></main>;
@@ -136,12 +187,13 @@ function Router() {
   const [cart, setCart] = useState<CartItem[]>(() => { try { return JSON.parse(localStorage.getItem('zalv-cart') || '[]') as CartItem[]; } catch { return []; } });
   const [user, setUser] = useState<User | null>(() => { try { return JSON.parse(localStorage.getItem('zalv-session') || 'null') as User | null; } catch { return null; } });
   const [welcome, setWelcome] = useState(() => !localStorage.getItem('zalv-welcomed'));
+  const [location] = useLocation();
   useEffect(() => { getProducts().then(setProducts); }, []);
   const closeWelcome = () => { localStorage.setItem('zalv-welcomed', '1'); setWelcome(false); };
   const add = (product: Product) => setCart((current) => { const found=current.find((item)=>item.product.id===product.id); return found ? current.map((item)=>item.product.id===product.id?{...item,quantity:item.quantity+1}:item) : [...current,{product,quantity:1}]; });
-  return <Shell cart={cart} setCart={setCart} user={user} onSignOut={()=>{setUser(null);localStorage.removeItem('zalv-session');}}>
+  return <Shell cart={cart} setCart={setCart} user={user} showChrome={location !== '/'} onSignOut={()=>{setUser(null);localStorage.removeItem('zalv-session');}}>
     <Switch>
-      <Route path="/" component={() => <Home products={products} onAdd={add}/>}/>
+       <Route path="/" component={() => <Home products={products} onAdd={add} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}/>}/>
       <Route path="/shop/:category" component={() => <Shop products={products} onAdd={add}/>}/>
       <Route path="/shop" component={() => <Shop products={products} onAdd={add}/>}/>
       <Route path="/account" component={() => <Account user={user} setUser={(next)=>{setUser(next); if(next) localStorage.setItem('zalv-session',JSON.stringify(next));}} cart={cart} setCart={setCart}/>}/>

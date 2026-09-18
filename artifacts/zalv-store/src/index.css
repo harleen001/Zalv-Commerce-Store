@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@300;400;500;600&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './original-home.css';
 
 @theme inline {
   --color-background: hsl(var(--background));
@@ -58,6 +60,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .menu-button { display:none; border:0; background:none; cursor:pointer; }
 .page-wrap { max-width:1400px; margin:auto; padding:0 34px 90px; }
 .eyebrow { font:500 10px var(--app-font-mono); letter-spacing:.16em; text-transform:uppercase; color:#8c4a2f; }
+.fearless-mark { color:#231f1c; font-weight:700; letter-spacing:.25em; }
 .display { font-family:var(--app-font-serif); font-weight:600; letter-spacing:-.045em; }
 .hero { display:grid; grid-template-columns:1.05fr .95fr; min-height:650px; border-bottom:1px solid #cfc7ba; }
 .hero-copy { display:flex; flex-direction:column; justify-content:center; padding:70px 7vw 70px 4vw; position:relative; }

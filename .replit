@@ -22,7 +22,7 @@ timeoutMs = 20000
 [userenv]
 
 [userenv.shared]
-VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdm9zcGtpcXN2enJ0eGpkamtvYjIiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4OTcyNTk4Niwian0.DqKsL9dk_ikh6SIPYFhvG1by1YK06723SDJ0JtalsY0"
+VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2b3Nwa2lxc3Z6cnRqeGRqa29iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjU5ODYsImV4cCI6MjEwNTMwMTk4Nn0.DqKsL9dk_ikh6SIPYFhvG1by1YK06723SDJ0JtalsY0"
 VITE_SUPABASE_URL = "https://kvospkiqsvzrtjxdjkob.supabase.co"
 
 [nix]

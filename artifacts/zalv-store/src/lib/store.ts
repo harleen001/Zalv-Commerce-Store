@@ -59,10 +59,19 @@ const readLocal = <T,>(key: string, fallback: T): T => {
 };
 const writeLocal = (key: string, value: unknown) => localStorage.setItem(key, JSON.stringify(value));
 
+function resolveImageUrl(imageUrl: string) {
+  if (imageUrl === 'perfume') return perfumeImage;
+  if (imageUrl === 'boots' || imageUrl === 'shoes') return bootsImage;
+  if (imageUrl === 'jacket' || imageUrl === 'jackets') return jacketImage;
+  if (imageUrl === 'hero') return heroImage;
+  if (imageUrl === 'craft') return craftImage;
+  return imageUrl;
+}
+
 export async function getProducts(): Promise<Product[]> {
   if (supabase) {
     const { data } = await supabase.from('products').select('*').order('created_at', { ascending: true });
-    if (data?.length) return data as Product[];
+    if (data?.length) return (data as Product[]).map((product) => ({ ...product, image_url: resolveImageUrl(product.image_url) }));
   }
   return catalog;
 }
