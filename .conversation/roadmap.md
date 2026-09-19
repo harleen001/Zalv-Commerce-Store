@@ -1,4 +1,0 @@
-- [x] Inspect uploaded storefront and deployment error signals
-- [x] Replace placeholder with frontend-only ZALV demo
-- [x] Remove custom server wrapper and enable static prerendering
-- [x] Verify the preview and production build signals

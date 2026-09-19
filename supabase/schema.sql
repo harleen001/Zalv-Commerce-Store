@@ -6,10 +6,20 @@ create extension if not exists "pgcrypto";
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
+  email text,
   phone text,
   is_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists email text;
+
+-- Backfill email addresses when this schema is applied to an existing project.
+update public.profiles as profiles
+set email = auth_users.email
+from auth.users as auth_users
+where profiles.id = auth_users.id
+  and (profiles.email is null or profiles.email = '');
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
@@ -45,9 +55,13 @@ create table if not exists public.order_items (
   order_id uuid not null references public.orders(id) on delete cascade,
   product_id uuid references public.products(id) on delete set null,
   product_name text not null,
+  size text,
   quantity integer not null check (quantity > 0),
   unit_price numeric(10, 2) not null check (unit_price >= 0)
 );
+
+-- Keeps existing databases compatible with the size captured at checkout.
+alter table public.order_items add column if not exists size text;
 
 create or replace function public.is_admin()
 returns boolean
@@ -68,10 +82,11 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, phone)
+  insert into public.profiles (id, full_name, email, phone)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', ''),
+    new.email,
     coalesce(new.raw_user_meta_data ->> 'phone', '')
   )
   on conflict (id) do nothing;
