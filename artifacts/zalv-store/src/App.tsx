@@ -12,6 +12,8 @@ import popupImage from '@/assets/zalv-perfume.jpg';
 import perfumeImage from '@/assets/zalv-perfume.jpg';
 import heroImage from '@/assets/zalv-hero.jpg';
 import craftImage from '@/assets/zalv-craft.jpg';
+import { AboutPage, INFO_PATHS, PolicyPage, ServiceCards, SiteFooter, SiteHeader, SizeGuidePage } from '@/site/SitePages';
+import { privacyDoc, returnsDoc, shippingDoc, termsDoc } from '@/site/content';
 import {
   catalog, createOrder, getAllOrders, getAllUsers, getOrders, getProducts, signIn, signOut, signUp, updateOrderStatus,
   type CartItem, type CheckoutDetails, type Order, type Product, type Profile,
@@ -52,7 +54,7 @@ function Shell({ children, cart, setCart, user, onSignOut, showChrome = true }: 
           <Link href="/shop/perfume" data-testid="link-perfume">Perfume</Link>
           <Link href="/shop/shoes" data-testid="link-shoes">Shoes</Link>
           <Link href="/shop/jackets" data-testid="link-jackets">Jackets</Link>
-          <a href="#journal" data-testid="link-journal" onClick={() => setMenuOpen(false)}>Journal</a>
+          <Link href="/about" data-testid="link-about" onClick={() => setMenuOpen(false)}>About us</Link>
         </nav>
         <div className="header-actions">
           <Link className="header-action" href="/admin" aria-label="Owner desk" data-testid="link-owner"><LayoutDashboard size={18} strokeWidth={1.4} /><span>Owner</span></Link>
@@ -66,7 +68,7 @@ function Shell({ children, cart, setCart, user, onSignOut, showChrome = true }: 
       <div className="footer-inner">
         <div><img className="footer-logo" src={logo} alt="Zalv" /><p style={{ maxWidth:260, color:'#b8aea5', lineHeight:1.7, fontSize:13, marginTop:20 }}>Objects for the way you move through the world. Made slowly in Jalandhar.</p></div>
         <div><h4>Explore</h4><Link href="/shop">Shop all</Link><Link href="/shop/perfume">Perfume</Link><Link href="/shop/shoes">Leather shoes</Link><Link href="/shop/jackets">Leather jackets</Link></div>
-        <div><h4>Notes</h4><a href="#journal">Our material</a><a href="#journal">Care guide</a><a href="#journal">Contact studio</a><a href="#journal">Shipping & returns</a></div>
+        <div><h4>Notes</h4><Link href="/about">About us</Link><Link href="/shipping-policy">Shipping policy</Link><Link href="/return-policy">Return &amp; exchange</Link><Link href="/size-guide">Size guide</Link><Link href="/privacy-policy">Privacy policy</Link><Link href="/terms-and-conditions">Terms &amp; conditions</Link></div>
       </div>
       <div className="footer-bottom"><span>© 2024 Zalv Objects</span><span>Made in Punjab, India</span></div>
     </footer>}
@@ -103,7 +105,6 @@ type HomeProduct = { source: Product; name: string; category: HomeCategory; imag
 
 function Home({ products, onAdd, cartCount }: { products: Product[]; onAdd: AddToCart; cartCount: number }) {
   const [filter, setFilter] = useState<'All' | HomeCategory>('All');
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState<HomeProduct | null>(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [signedUp, setSignedUp] = useState(false);
@@ -124,33 +125,18 @@ function Home({ products, onAdd, cartCount }: { products: Product[]; onAdd: AddT
   };
 
   return <main className="original-home">
-    <div className="announce">MEMBER DAYS · COMPLIMENTARY SHIPPING OVER $150</div>
-    <header className="site-header">
-      <div className="nav-wrap">
-        <button className="icon-button mobile-only" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
-        <a className="wordmark" href="#top" aria-label="ZALV home">ZALV<span>®</span></a>
-        <nav className="main-nav" aria-label="Main navigation"><a href="#new">New</a><a href="#shop">Jackets</a><a href="#shop">Boots</a><a href="#scent">Perfume</a><a href="#craft">Journal</a></nav>
-        <div className="nav-actions">
-          <button className="icon-button desktop-only" aria-label="Search"><Search /></button>
-          <button className="bag-button" aria-label="Open shopping bag" data-testid="button-original-cart" onClick={() => window.dispatchEvent(new Event('zalv-open-cart'))}><ShoppingBag /><span>Bag</span><b>{String(cartCount).padStart(2, '0')}</b></button>
-        </div>
-      </div>
-    </header>
-    {menuOpen && <div className="mobile-menu"><button className="icon-button menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X /></button><a className="wordmark" href="#top">ZALV</a><nav><a href="#new" onClick={() => setMenuOpen(false)}>New collection</a><a href="#shop" onClick={() => setMenuOpen(false)}>Jackets</a><a href="#shop" onClick={() => setMenuOpen(false)}>Boots</a><a href="#scent" onClick={() => setMenuOpen(false)}>Perfume</a><a href="#craft" onClick={() => setMenuOpen(false)}>Our workshop</a></nav></div>}
+    <SiteHeader cartCount={cartCount} />
     <section className="hero" id="top"><img className="hero-image" src={heroImage} alt="Model wearing ZALV oxblood leather jacket" /><div className="hero-shade" /><div className="hero-content"><p className="eyebrow light">AUTUMN / WINTER 2026 · JALANDHAR</p><h1>Fearless<br /><em>objects.</em></h1><p className="hero-intro">Leather outerwear, resoleable boots and dry-down perfumes. Made in small batches for people who keep things.</p><a className="text-link light" href="#shop">Shop the drop <ArrowDown /></a></div><p className="hero-index">COLLECTION 01 / 19 PIECES</p></section>
     <section className="manifesto" id="new"><p className="eyebrow">OUR POSITION</p><p className="manifesto-copy">Not trend. Not nostalgia.<br />Objects with the courage to <em>age.</em></p><div className="manifesto-notes"><span>Full-grain hides</span><span>Goodyear welts</span><span>Concentrated parfum</span><span>Made to be re-worn</span></div></section>
     <section className="categories" aria-labelledby="category-title"><div className="section-heading"><p className="eyebrow">01 / DISCIPLINES</p><h2 id="category-title">Three ways<br />to leave a mark.</h2><p>One workshop philosophy, expressed in hide, sole, and scent.</p></div><div className="category-grid">{(Object.keys(categoryImages) as HomeCategory[]).map((category, index) => <button className="category-tile" key={category} onClick={() => selectCategory(category)}><img src={categoryImages[category]} alt={`Shop ZALV ${category.toLowerCase()}`} /><span className="category-number">0{index + 1}</span><span className="category-name">{category}</span><ArrowRight /></button>)}</div></section>
     <section className="shop" id="shop" aria-labelledby="shop-title"><div className="shop-top"><div><p className="eyebrow">02 / CURRENT RANGE</p><h2 id="shop-title">Made now.</h2></div><p>Twelve pieces, restocked in small runs.<br />No permanent collection.</p></div><div className="filter-row" role="group" aria-label="Product filters">{(['All', 'Jackets', 'Boots', 'Perfume'] as const).map((option) => <button key={option} className={filter === option ? 'active' : ''} onClick={() => setFilter(option)}>{option}</button>)}</div><div className="product-grid">{shownProducts.map((product, index) => <article className={`product-card ${index === 0 ? 'featured-product' : ''}`} key={product.source.id}><button className="product-media" onClick={() => { setSelected(product); setSelectedSize(''); }} aria-label={`View ${product.name}`}><img src={product.image} alt={product.name} />{product.tag && <span className="product-tag">{product.tag}</span>}<span className="quick-view">Quick view <ArrowRight /></span></button><div className="product-info"><div><p className="product-category">{product.category}</p><h3>{product.name}</h3></div><p>{money(product.source.price)}</p></div></article>)}</div></section>
-    <section className="craft" id="craft"><div className="craft-image"><img src={craftImage} alt="Leather artisan hand-cutting a hide in the ZALV workshop" /><span>JALANDHAR, PUNJAB<br />31.3260° N, 75.5762° E</span></div><div className="craft-copy"><p className="eyebrow light">03 / THE WORKSHOP</p><h2>Cut around<br />the scars.</h2><p>Every hide tells us where it wants to be cut. We follow its grain, keep its history visible, and waste less than six percent per jacket.</p><a className="text-link light" href="#footer">Meet the makers <ArrowRight /></a></div></section>
+    <section className="craft" id="craft"><div className="craft-image"><img src={craftImage} alt="Leather artisan hand-cutting a hide in the ZALV workshop" /><span>JALANDHAR, PUNJAB<br />31.3260° N, 75.5762° E</span></div><div className="craft-copy"><p className="eyebrow light">03 / THE WORKSHOP</p><h2>Cut around<br />the scars.</h2><p>Every hide tells us where it wants to be cut. We follow its grain, keep its history visible, and waste less than six percent per jacket.</p><Link className="text-link light" href="/about">Meet the makers <ArrowRight /></Link></div></section>
     <section className="scent" id="scent"><img src={perfumeImage} alt="ZALV Burnt Vetiver perfume" /><div className="scent-copy"><p className="eyebrow">04 / THE SCENT LIBRARY</p><h2>What leather<br />remembers.</h2><p>Four concentrated eau de parfums built around smoke, leather, oud, vetiver and tobacco. Close to the body. Hard to forget.</p><button className="solid-button" onClick={() => selectCategory('Perfume')}>Discover the scents <ArrowRight /></button></div></section>
+    <ServiceCards />
     <section className="newsletter"><p className="eyebrow light">PRIVATE LIST</p><h2>{signedUp ? "You're on the list." : 'First to know. Last to follow.'}</h2>{!signedUp && <form onSubmit={(event) => { event.preventDefault(); setSignedUp(true); }}><label className="sr-only" htmlFor="home-email">Email address</label><input id="home-email" type="email" placeholder="Email address" required /><button type="submit" aria-label="Join mailing list"><ArrowRight /></button></form>}{signedUp && <Check className="signup-check" aria-hidden="true" />}</section>
-    <footer id="footer"><div className="footer-brand"><a className="wordmark large" href="#top">ZALV</a><p>Objects for use, abuse,<br />repair and return.</p></div><FooterColumn title="SHOP" links={['Jackets', 'Boots', 'Perfume', 'Gift cards']} /><FooterColumn title="ASSISTANCE" links={['Shipping', 'Returns', 'Size guide', 'Contact']} /><FooterColumn title="STUDIO" links={['Purpose', 'Craftsmanship', 'Careers', 'Journal']} /><div className="footer-bottom"><span>© 2026 ZALV</span><span>JALANDHAR · INDIA</span><span>INSTAGRAM ↗</span></div></footer>
+    <SiteFooter />
     {selected && <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={selected.name} onClick={() => setSelected(null)}><div className="quick-modal" onClick={(event) => event.stopPropagation()}><button className="icon-button modal-close" aria-label="Close quick view" onClick={() => setSelected(null)}><X /></button><img src={selected.image} alt={selected.name} /><div className="modal-copy"><p className="eyebrow">{selected.category}</p><h2>{selected.name}</h2><p className="modal-price">{money(selected.source.price)}</p><p>{selected.note}</p>{selected.category !== 'Perfume' && <div className="size-row"><span>SELECT SIZE</span>{PRODUCT_SIZES.map((size) => <button className={selectedSize === size ? 'active' : ''} key={size} onClick={() => setSelectedSize(size)}>{size}</button>)}</div>}<button className="solid-button full" disabled={selected.category !== 'Perfume' && !selectedSize} onClick={() => { onAdd(selected.source, selectedSize || undefined); setSelected(null); }}>Add to bag <ArrowRight /></button></div></div></div>}
   </main>;
-}
-
-function FooterColumn({ title, links }: { title: string; links: string[] }) {
-  return <div className="footer-column"><h3>{title}</h3>{links.map((link) => <a href="#top" key={link}>{link}</a>)}</div>;
 }
 
 function Shop({ products, onAdd }: { products: Product[]; onAdd: AddToCart }) {
@@ -202,11 +188,19 @@ function Router() {
   const [welcome, setWelcome] = useState(() => !localStorage.getItem('zalv-welcomed'));
   const [location] = useLocation();
   useEffect(() => { getProducts().then(setProducts); }, []);
+  useEffect(() => { if (!window.location.hash) window.scrollTo({ top: 0, behavior: 'instant' }); }, [location]);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const closeWelcome = () => { localStorage.setItem('zalv-welcomed', '1'); setWelcome(false); };
   const add = (product: Product, size?: string) => setCart((current) => { const found=current.find((item)=>item.product.id===product.id && item.size===size); return found ? current.map((item)=>item.product.id===product.id && item.size===size?{...item,quantity:item.quantity+1}:item) : [...current,{product,quantity:1,size}]; });
-  return <Shell cart={cart} setCart={setCart} user={user} showChrome={location !== '/'} onSignOut={()=>{setUser(null);localStorage.removeItem('zalv-session');}}>
+  return <Shell cart={cart} setCart={setCart} user={user} showChrome={location !== '/' && !INFO_PATHS.includes(location)} onSignOut={()=>{setUser(null);localStorage.removeItem('zalv-session');}}>
     <Switch>
-       <Route path="/" component={() => <Home products={products} onAdd={add} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}/>}/>
+       <Route path="/" component={() => <Home products={products} onAdd={add} cartCount={cartCount}/>}/>
+      <Route path="/about"><AboutPage cartCount={cartCount}/></Route>
+      <Route path="/size-guide"><SizeGuidePage cartCount={cartCount}/></Route>
+      <Route path={shippingDoc.path}><PolicyPage doc={shippingDoc} cartCount={cartCount}/></Route>
+      <Route path={returnsDoc.path}><PolicyPage doc={returnsDoc} cartCount={cartCount}/></Route>
+      <Route path={privacyDoc.path}><PolicyPage doc={privacyDoc} cartCount={cartCount}/></Route>
+      <Route path={termsDoc.path}><PolicyPage doc={termsDoc} cartCount={cartCount}/></Route>
       <Route path="/shop/:category" component={() => <Shop products={products} onAdd={add}/>}/>
       <Route path="/shop" component={() => <Shop products={products} onAdd={add}/>}/>
       <Route path="/account" component={() => <Account user={user} setUser={(next)=>{setUser(next); if(next) localStorage.setItem('zalv-session',JSON.stringify(next));}} cart={cart} setCart={setCart}/>}/>

@@ -180,9 +180,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .footer { padding:50px 18px 25px; }
   .footer-inner { display:grid; grid-template-columns:1fr 1fr; }
   .footer-bottom { margin-top:40px; flex-direction:column; gap:8px; }
-  .modal-image { min-height:230px; }
-  .modal-copy { padding:33px 26px 38px; }
+  .modal { max-height:calc(100dvh - 24px); overflow-y:auto; }
+  .modal-image { min-height:0; height:min(32vh, 240px); }
+  .modal-copy { padding:30px 24px 32px; }
   .form-page { padding-top:58px; }
   .form-page h1 { font-size:55px; }
   .admin-table { display:block; overflow-x:auto; white-space:nowrap; }
+}
+
+/* short screens (phones held sideways) and very small phones */
+@media (max-height: 560px) {
+  .modal { max-height:calc(100dvh - 16px); overflow-y:auto; }
+  .modal-image { min-height:0; }
+  .modal-copy { padding:26px 30px; }
+}
+@media (max-width: 380px) {
+  .modal-copy { padding:26px 20px 28px; }
+  .form-page h1 { font-size:46px; }
+  .cart-drawer { padding:20px 18px; }
 }

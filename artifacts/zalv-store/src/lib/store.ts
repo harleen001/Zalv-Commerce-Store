@@ -5,6 +5,15 @@ import craftImage from '@/assets/zalv-craft.jpg';
 import heroImage from '@/assets/zalv-hero.jpg';
 import jacketImage from '@/assets/zalv-jacket.jpg';
 import perfumeImage from '@/assets/zalv-perfume.jpg';
+import jacket02Image from '@/assets/zalv-jacket-02.jpg';
+import jacket03Image from '@/assets/zalv-jacket-03.jpg';
+import jacket04Image from '@/assets/zalv-jacket-04.jpg';
+import boots02Image from '@/assets/zalv-boots-02.jpg';
+import boots03Image from '@/assets/zalv-boots-03.jpg';
+import boots04Image from '@/assets/zalv-boots-04.jpg';
+import perfume02Image from '@/assets/zalv-perfume-02.jpg';
+import perfume03Image from '@/assets/zalv-perfume-03.jpg';
+import perfume04Image from '@/assets/zalv-perfume-04.jpg';
 
 export type Product = {
   id: string;
@@ -41,19 +50,36 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const supabase: SupabaseClient | null = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
+// Every product gets its own photo. Pools are used as a fallback for any product not listed in productImages.
+const imagePools: Record<Product['category'], string[]> = {
+  perfume: [perfumeImage, perfume04Image, perfume03Image, perfume02Image],
+  shoes: [bootsImage, boots02Image, boots03Image, boots04Image],
+  jackets: [jacketImage, jacket03Image, jacket02Image, jacket04Image],
+};
+const productImages: Record<string, string> = {
+  // built-in catalog
+  'smoke-and-saffron': perfumeImage, 'monsoon-vetiver': perfume04Image, 'mogra-at-dusk': perfume03Image, 'after-the-rain': perfume02Image,
+  'the-jalandhar-boot': bootsImage, 'field-derby': boots02Image, 'blacksmith-buckle': boots03Image, 'night-rider': boots04Image,
+  'the-atelier': jacketImage, 'roadhouse': jacket03Image, 'quiet-rider': jacket02Image, 'first-cut': jacket04Image,
+  // Supabase seed (supabase/schema.sql)
+  'noir-01': perfumeImage, 'sillage-02': perfume03Image, 'mitti-03': perfume02Image, 'salt-04': perfume04Image,
+  'moc-01': bootsImage, 'derby-02': boots02Image, 'loafer-03': boots04Image, 'trail-04': boots03Image,
+  'rider-02': jacketImage, 'field-01': jacket03Image, 'work-03': jacket02Image, 'flight-04': jacket04Image,
+};
+
 export const catalog: Product[] = [
   { id:'p1', slug:'smoke-and-saffron', name:'Smoke / Saffron', category:'perfume', description:'Saffron, burnt cedar, a thread of leather.', price:4850, image_url:perfumeImage, is_featured:true },
-  { id:'p2', slug:'monsoon-vetiver', name:'Monsoon Vetiver', category:'perfume', description:'Green vetiver, wet stone, black pepper.', price:4250, image_url:perfumeImage, is_featured:true },
-  { id:'p3', slug:'mogra-at-dusk', name:'Mogra at Dusk', category:'perfume', description:'Night jasmine, iris, and warm skin.', price:3900, image_url:perfumeImage, is_featured:false },
-  { id:'p4', slug:'after-the-rain', name:'After the Rain', category:'perfume', description:'Petrichor, sandalwood, a clean mineral finish.', price:4500, image_url:perfumeImage, is_featured:false },
+  { id:'p2', slug:'monsoon-vetiver', name:'Monsoon Vetiver', category:'perfume', description:'Green vetiver, wet stone, black pepper.', price:4250, image_url:perfume04Image, is_featured:true },
+  { id:'p3', slug:'mogra-at-dusk', name:'Mogra at Dusk', category:'perfume', description:'Night jasmine, iris, and warm skin.', price:3900, image_url:perfume03Image, is_featured:false },
+  { id:'p4', slug:'after-the-rain', name:'After the Rain', category:'perfume', description:'Petrichor, sandalwood, a clean mineral finish.', price:4500, image_url:perfume02Image, is_featured:false },
   { id:'p5', slug:'the-jalandhar-boot', name:'The Jalandhar Boot', category:'shoes', description:'Full-grain leather. Brass buckle. Built for long roads.', price:12900, image_url:bootsImage, is_featured:true },
-  { id:'p6', slug:'field-derby', name:'Field Derby', category:'shoes', description:'A low profile with a little more weather in it.', price:9800, image_url:bootsImage, is_featured:true },
-  { id:'p7', slug:'blacksmith-buckle', name:'Blacksmith Buckle', category:'shoes', description:'Hand-finished calfskin with a weighted sole.', price:11600, image_url:bootsImage, is_featured:false },
-  { id:'p8', slug:'night-rider', name:'Night Rider', category:'shoes', description:'Black leather, clean lines, no unnecessary noise.', price:10800, image_url:bootsImage, is_featured:false },
+  { id:'p6', slug:'field-derby', name:'Field Derby', category:'shoes', description:'A low profile with a little more weather in it.', price:9800, image_url:boots02Image, is_featured:true },
+  { id:'p7', slug:'blacksmith-buckle', name:'Blacksmith Buckle', category:'shoes', description:'Hand-finished calfskin with a weighted sole.', price:11600, image_url:boots03Image, is_featured:false },
+  { id:'p8', slug:'night-rider', name:'Night Rider', category:'shoes', description:'Black leather, clean lines, no unnecessary noise.', price:10800, image_url:boots04Image, is_featured:false },
   { id:'p9', slug:'the-atelier', name:'The Atelier Jacket', category:'jackets', description:'A precise cut in oxblood leather from Jalandhar.', price:26500, image_url:jacketImage, is_featured:true },
-  { id:'p10', slug:'roadhouse', name:'Roadhouse Jacket', category:'jackets', description:'Relaxed shoulders. A strong collar. Made to age.', price:23800, image_url:heroImage, is_featured:true },
-  { id:'p11', slug:'quiet-rider', name:'Quiet Rider', category:'jackets', description:'Soft black leather and hardware kept to a minimum.', price:24900, image_url:jacketImage, is_featured:false },
-  { id:'p12', slug:'first-cut', name:'First Cut', category:'jackets', description:'The everyday leather jacket, made less ordinary.', price:21900, image_url:craftImage, is_featured:false },
+  { id:'p10', slug:'roadhouse', name:'Roadhouse Jacket', category:'jackets', description:'Relaxed shoulders. A strong collar. Made to age.', price:23800, image_url:jacket03Image, is_featured:true },
+  { id:'p11', slug:'quiet-rider', name:'Quiet Rider', category:'jackets', description:'Soft black leather and hardware kept to a minimum.', price:24900, image_url:jacket02Image, is_featured:false },
+  { id:'p12', slug:'first-cut', name:'First Cut', category:'jackets', description:'The everyday leather jacket, made less ordinary.', price:21900, image_url:jacket04Image, is_featured:false },
 ];
 
 const readLocal = <T,>(key: string, fallback: T): T => {
@@ -73,7 +99,19 @@ function resolveImageUrl(imageUrl: string) {
 export async function getProducts(): Promise<Product[]> {
   if (supabase) {
     const { data } = await supabase.from('products').select('*').order('created_at', { ascending: true });
-    if (data?.length) return (data as Product[]).map((product) => ({ ...product, image_url: resolveImageUrl(product.image_url) }));
+    if (data?.length) {
+      const seen: Record<string, number> = {};
+      const generic = ['perfume', 'boots', 'shoes', 'jacket', 'jackets'];
+      return (data as Product[]).map((product) => {
+        const position = (seen[product.category] = (seen[product.category] ?? -1) + 1);
+        const pool = imagePools[product.category];
+        // a real image URL saved in the database is always respected; generic keywords get a per-product photo
+        const image_url = generic.includes(product.image_url)
+          ? productImages[product.slug] ?? pool?.[position % pool.length] ?? resolveImageUrl(product.image_url)
+          : resolveImageUrl(product.image_url);
+        return { ...product, image_url };
+      });
+    }
   }
   return catalog;
 }
