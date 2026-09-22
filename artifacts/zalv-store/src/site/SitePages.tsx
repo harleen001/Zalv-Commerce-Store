@@ -69,7 +69,9 @@ export function SiteHeader({ cartCount }: { cartCount: number }) {
 export function SiteFooter() {
   const { linkProps } = useSiteNav();
   return <footer id="footer">
-    <div className="footer-brand"><a className="wordmark large" {...linkProps('/')}>ZALV</a><p>Objects for use, abuse,<br />repair and return.</p></div>
+    <div className="footer-brand"><a className="wordmark" {...linkProps('/', undefined, close)}>
+  <img src={logoImage} alt="ZALV" className="logo-img" />
+</a><p>Objects for use, abuse,<br />repair and return.</p></div>
     <div className="footer-column"><h3>SHOP</h3>
       <a {...linkProps('/', 'shop')}>Jackets</a><a {...linkProps('/', 'shop')}>Boots</a><a {...linkProps('/', 'scent')}>Perfume</a>
     </div>
