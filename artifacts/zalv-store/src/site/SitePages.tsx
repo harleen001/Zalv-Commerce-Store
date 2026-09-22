@@ -5,6 +5,7 @@ import modelImage from '@/assets/zalv-about-model.jpg';
 import craftImage from '@/assets/zalv-craft.jpg';
 import { privacyDoc, returnsDoc, serviceCards, shippingDoc, siteInfo, sizeTables, termsDoc, type Block, type PolicyDoc } from './content';
 import './site-pages.css';
+import logoImage from '@/assets/zalv-logo.png';
 
 export const INFO_PATHS = ['/about', '/size-guide', shippingDoc.path, returnsDoc.path, privacyDoc.path, termsDoc.path];
 
@@ -34,7 +35,9 @@ export function SiteHeader({ cartCount }: { cartCount: number }) {
     <header className="site-header">
       <div className="nav-wrap">
         <button className="icon-button mobile-only" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu /></button>
-        <a className="wordmark" aria-label="ZALV home" {...linkProps('/')}>ZALV<span>®</span></a>
+       <a className="wordmark" aria-label="ZALV home" {...linkProps('/')}>
+  <img src={logoImage} alt="ZALV" className="logo-img" />
+</a>
         <nav className="main-nav" aria-label="Main navigation">
           <a {...linkProps('/', 'new')}>New</a>
           <a {...linkProps('/', 'shop')}>Jackets</a>

@@ -112,3 +112,9 @@
     .service-grid { grid-template-columns: 1fr; }
   }
 }
+
+.wordmark .logo-img {
+  height: 28px; /* Adjust height as needed */
+  width: auto;
+  display: block;
+}
